@@ -159,19 +159,30 @@ exports.getInvoice = (req, res, next) => {
       const invoiceName = `invoice-${orderId}.pdf`;
       const invoicePath = path.join('data', 'invoices', invoiceName);
 
-      fs.readFile(invoicePath, (err, data) => {
-        if (err) {
-          return next(err);
-        }
+      // fs.readFile(invoicePath, (err, data) => {
+      //   if (err) {
+      //     return next(err);
+      //   }
 
-        // user will be able to download the invoice pdf file with its invoiceName
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader(
-          'Content-Disposition',
-          `attachment; filename="${invoiceName}"`
-        );
-        res.send(data);
-      });
+      //   // user will be able to download the invoice pdf file with its invoiceName
+      //   res.setHeader('Content-Type', 'application/pdf');
+      //   res.setHeader(
+      //     'Content-Disposition',
+      //     `attachment; filename="${invoiceName}"`
+      //   );
+      //   res.send(data);
+      // });
+
+      // it is recommend to stream our data instead of preloading it (commented code above) from the memory
+      const file = fs.createReadStream(invoicePath);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${invoiceName}"`
+      );
+
+      // user will be able to download the invoice pdf file with its invoiceName
+      file.pipe(res);
     })
     .catch((err) => {
       const error = new Error(err);
