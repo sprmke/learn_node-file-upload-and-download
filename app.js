@@ -47,9 +47,20 @@ const fileStorage = multer.diskStorage({
   },
 });
 
+const fileFilter = (req, { mimetype }, cb) => {
+  // only accept png & jpg image files
+  if (['image/png', 'image/jpg', 'image/jpeg'].includes(mimetype)) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 // handle file data from request
 // save file to images directory
-app.use(multer({ dest: 'images', storage: fileStorage }).single('image'));
+app.use(
+  multer({ dest: 'images', storage: fileStorage, fileFilter }).single('image')
+);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
