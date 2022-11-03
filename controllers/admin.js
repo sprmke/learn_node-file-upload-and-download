@@ -85,6 +85,7 @@ exports.postAddProduct = (req, res, next) => {
     },
   });
 
+  // get image URL and save to database
   const imageUrl = image.path;
 
   const product = new Product({

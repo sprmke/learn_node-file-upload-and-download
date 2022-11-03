@@ -61,7 +61,12 @@ const fileFilter = (req, { mimetype }, cb) => {
 app.use(
   multer({ dest: 'images', storage: fileStorage, fileFilter }).single('image')
 );
+
+// handle static routes
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// initialize session
 app.use(
   session({
     secret: 'my secret',
