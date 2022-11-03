@@ -36,9 +36,20 @@ app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const error = null;
+    cb(error, 'images');
+  },
+  filename: (req, { originalname }, cb) => {
+    const error = null;
+    cb(error, `${new Date().toISOString()}-${originalname}`);
+  },
+});
+
 // handle file data from request
 // save file to images directory
-app.use(multer({ dest: 'images' }).single('image'));
+app.use(multer({ dest: 'images', storage: fileStorage }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
