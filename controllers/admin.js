@@ -2,14 +2,30 @@ const { validationResult } = require('express-validator');
 
 const Product = require('../models/product');
 
-const validateProduct = ({ req, res, action, product }) => {
+const validateProduct = ({
+  req,
+  res,
+  action,
+  product,
+  isEditProduct = false,
+}) => {
   const errors = validationResult(req);
-  const validationErrors = Object.assign(
+  let validationErrors = Object.assign(
     {},
     ...errors.array().map((error) => ({ [error.param]: error }))
   );
 
-  if (!errors.isEmpty()) {
+  // validate if image is a valid file image
+  if (!product.image && !isEditProduct) {
+    validationErrors = {
+      ...validationErrors,
+      image: {
+        msg: 'Invalid image file. Only support png or jpg/jpeg images.',
+      },
+    };
+  }
+
+  if (!errors.isEmpty() && !product.image && isEditProduct) {
     const p =
       action === 'add'
         ? {
@@ -25,6 +41,8 @@ const validateProduct = ({ req, res, action, product }) => {
             editing: true,
           };
 
+    console.log('hasError::', errors);
+    console.log('errors.isEmpty()::', errors.isEmpty());
     return res.status(422).render(p.render, {
       pageTitle: p.title,
       path: p.path,
@@ -66,6 +84,8 @@ exports.postAddProduct = (req, res, next) => {
       description,
     },
   });
+
+  const imageUrl = image.path;
 
   const product = new Product({
     title: title,
@@ -134,7 +154,7 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDesc = req.body.description;
 
   validateProduct({
@@ -143,11 +163,12 @@ exports.postEditProduct = (req, res, next) => {
     action: 'edit',
     product: {
       title: updatedTitle,
-      imageUrl: updatedImageUrl,
+      image,
       price: updatedPrice,
       description: updatedDesc,
       _id: prodId,
     },
+    isEditProduct: true,
   });
 
   Product.findById(prodId)
@@ -158,13 +179,14 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
-      product.imageUrl = updatedImageUrl;
+      if (image) {
+        product.imageUrl = image.path;
+      }
       return product.save().then((result) => {
         console.log('UPDATED PRODUCT!');
         res.redirect('/admin/products');
       });
     })
-
     .catch((err) => {
       const error = new Error(err);
       error.httpStatusCode = 500;
