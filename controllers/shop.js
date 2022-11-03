@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -174,15 +176,20 @@ exports.getInvoice = (req, res, next) => {
       // });
 
       // it is recommend to stream our data instead of preloading it (commented code above) from the memory
-      const file = fs.createReadStream(invoicePath);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="${invoiceName}"`
-      );
+      // const file = fs.createReadStream(invoicePath);
 
       // user will be able to download the invoice pdf file with its invoiceName
-      file.pipe(res);
+      // file.pipe(res);
+
+      // generate pdf file using PDFKit
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`);
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.text('Hello World!');
+      pdfDoc.end();
     })
     .catch((err) => {
       const error = new Error(err);
