@@ -121,11 +121,14 @@ app.use(errorController.get404);
 // express error handling middleware
 app.use((error, req, res, next) => {
   // res.redirect('/500');
-  res.status(500).render('500', {
-    pageTitle: 'Error!',
-    path: '/500',
-    isAuthenticated: req.session.isLoggedIn,
-  });
+  if (error) {
+    console.error('error::', error);
+    res.status(500).render('500', {
+      pageTitle: 'Error!',
+      path: '/500',
+      isAuthenticated: req.session.isLoggedIn,
+    });
+  }
 });
 
 mongoose
