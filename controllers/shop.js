@@ -147,11 +147,18 @@ exports.getInvoice = (req, res, next) => {
   const { orderId } = req.params;
   const invoiceName = `invoice-${orderId}.pdf`;
   const invoicePath = path.join('data', 'invoices', invoiceName);
+
   fs.readFile(invoicePath, (err, data) => {
     if (err) {
       return next(err);
     }
 
+    // user will be able to download the invoice pdf file with its invoiceName
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${invoiceName}"`
+    );
     res.send(data);
   });
 };
