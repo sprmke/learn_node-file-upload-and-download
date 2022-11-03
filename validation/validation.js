@@ -12,10 +12,10 @@ const validate = (method) => {
           .isLength({ min: 3 })
           .withMessage('Title should be atleast 3 characters in length')
           .trim(),
-        body('imageUrl')
-          .isURL()
-          .withMessage('Please enter a valid image URL')
-          .trim(),
+        // body('imageUrl')
+        //   .isURL()
+        //   .withMessage('Please enter a valid image URL')
+        //   .trim(),
         body('price').isCurrency().withMessage('Please enter a valid price'),
         body('description')
           .isLength({ min: 5, max: 400 })
@@ -33,12 +33,12 @@ const validate = (method) => {
           .withMessage('Title should be atleast 3 characters in length')
           .trim()
           .escape(),
-        body('imageUrl', 'Please enter a valid image URL')
-          .not()
-          .isEmpty()
-          .withMessage()
-          .isURL()
-          .trim(),
+        // body('imageUrl', 'Please enter a valid image URL')
+        //   .not()
+        //   .isEmpty()
+        //   .withMessage()
+        //   .isURL()
+        //   .trim(),
         body('price')
           .escape()
           .isCurrency()
