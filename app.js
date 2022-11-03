@@ -8,6 +8,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 // Routes
 const adminRoutes = require('./routes/admin');
@@ -34,6 +35,10 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// handle file data from request
+// save file to images directory
+app.use(multer({ dest: 'images' }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
