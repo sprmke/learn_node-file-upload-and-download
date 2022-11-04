@@ -181,14 +181,26 @@ exports.getInvoice = (req, res, next) => {
       // user will be able to download the invoice pdf file with its invoiceName
       // file.pipe(res);
 
-      // generate pdf file using PDFKit
+      // generate invoice pdf file using PDFKit
       const pdfDoc = new PDFDocument();
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`);
       pdfDoc.pipe(fs.createWriteStream(invoicePath));
       pdfDoc.pipe(res);
 
-      pdfDoc.text('Hello World!');
+      pdfDoc.fontSize(26).text('Invoice', {
+        underline: true,
+      });
+      pdfDoc.text('----------------------');
+      let totalPrice = 0;
+      order.products.forEach(({ product, quantity }) => {
+        const { title, price } = product;
+        totalPrice += +quantity * +price;
+        pdfDoc.fontSize(14).text(`${title}-${quantity} x $${price}`);
+      });
+      pdfDoc.text('----');
+      pdfDoc.fontSize(18).text(`Total Price: $${totalPrice}`);
+
       pdfDoc.end();
     })
     .catch((err) => {
